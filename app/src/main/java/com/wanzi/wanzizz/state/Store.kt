@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.Executors
 
 open class Store<S : State, A : Action>(

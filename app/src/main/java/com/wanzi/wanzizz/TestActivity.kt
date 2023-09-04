@@ -11,7 +11,6 @@ import kotlin.random.Random
 class TestActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTestBinding
-    private var tabCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +25,11 @@ class TestActivity : AppCompatActivity() {
         }
 
         binding.selectTab.setOnClickListener {
-            val selectedTab = Random.nextInt(tabCount + 1)
+            val selectedTab = Random.nextInt(components.core.store.state.tabs.size + 1)
             components.useCases.tabsUseCases.selectTab("NO.$selectedTab")
         }
         binding.addTab.setOnClickListener {
-            tabCount++
+            val tabCount = components.core.store.state.tabs.size
             components.useCases.tabsUseCases.addTab("No.$tabCount")
         }
     }
