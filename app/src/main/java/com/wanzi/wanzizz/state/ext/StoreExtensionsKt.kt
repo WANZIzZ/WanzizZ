@@ -1,5 +1,6 @@
 package com.wanzi.wanzizz.state.ext
 
+import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -38,8 +39,9 @@ fun <S : State, A : Action> Store<S, A>.flow(owner: LifecycleOwner? = null): Flo
         }
     }
     owner?.lifecycle?.addObserver(ownerDestroyedObserver)
-
+    Log.d("Wanzi123", "StoreExtensionsKt flow destroyed:$destroyed")
     return channelFlow {
+        Log.d("Wanzi123", "StoreExtensionsKt flow channelFlow destroyed:$destroyed")
         if (destroyed) {
             return@channelFlow
         }
@@ -49,6 +51,7 @@ fun <S : State, A : Action> Store<S, A>.flow(owner: LifecycleOwner? = null): Flo
         val subscription = observeManually { state ->
             runBlocking {
                 try {
+                    Log.d("Wanzi123", "StoreExtensionsKt flow observeManually send:$state")
                     send(state)
                 } catch (e: CancellationException) {
                 }
@@ -64,6 +67,7 @@ fun <S : State, A : Action> Store<S, A>.flow(owner: LifecycleOwner? = null): Flo
         }
 
         awaitClose {
+            Log.d("Wanzi123", "StoreExtensionsKt flow awaitClose")
             subscription.unsubscribe()
         }
     }.buffer(Channel.CONFLATED)
@@ -74,18 +78,22 @@ private class SubscriptionLifecycleBinding<S : State, A : Action>(
     private val subscription: Store.Subscription<S, A>,
 ) : DefaultLifecycleObserver, Store.Subscription.Binding {
     override fun onStart(owner: LifecycleOwner) {
+        Log.d("Wanzi123", "SubscriptionLifecycleBinding onStart")
         subscription.resume()
     }
 
     override fun onStop(owner: LifecycleOwner) {
+        Log.d("Wanzi123", "SubscriptionLifecycleBinding onStop")
         subscription.pause()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
+        Log.d("Wanzi123", "SubscriptionLifecycleBinding onDestroy")
         subscription.unsubscribe()
     }
 
     override fun unbind() {
+        Log.d("Wanzi123", "SubscriptionLifecycleBinding unbind")
         owner.lifecycle.removeObserver(this)
     }
 }

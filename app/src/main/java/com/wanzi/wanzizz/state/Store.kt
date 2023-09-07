@@ -2,6 +2,7 @@ package com.wanzi.wanzizz.state
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.wanzi.wanzizz.state.internal.ReducerChainBuilder
 import com.wanzi.wanzizz.state.internal.StoreThreadFactory
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -44,6 +45,7 @@ open class Store<S : State, A : Action>(
 
     @Synchronized
     fun observeManually(observer: Observer<S>): Subscription<S, A> {
+        Log.d("Wanzi123", "Store observeManually")
         val subscription = Subscription(observer, store = this)
         subscriptions.add(subscription)
 
@@ -52,11 +54,13 @@ open class Store<S : State, A : Action>(
 
     fun dispatch(action: A) = scope.launch(dispatcherWithExceptionHandler) {
         synchronized(this@Store) {
+            Log.d("Wanzi123", "Store dispatch action:$action thread:${Thread.currentThread().name}")
             reducerChainBuilder.get(this@Store).invoke(action)
         }
     }
 
     internal fun transitionTo(state: S) {
+        Log.d("Wanzi123", "Store transitionTo state:$state currentState:$currentState")
         if (state == currentState) {
             return
         }
@@ -79,6 +83,7 @@ open class Store<S : State, A : Action>(
 
         @Synchronized
         fun resume() {
+            Log.d("Wanzi123", "Subscription resume")
             active = true
 
             storeReference.get()?.state?.let(observer)
@@ -86,11 +91,13 @@ open class Store<S : State, A : Action>(
 
         @Synchronized
         fun pause() {
+            Log.d("Wanzi123", "Subscription pause")
             active = false
         }
 
         @Synchronized
         internal fun dispatch(state: S) {
+            Log.d("Wanzi123", "Subscription dispatch state:$state active:$active")
             if (active) {
                 observer.invoke(state)
             }
@@ -98,6 +105,7 @@ open class Store<S : State, A : Action>(
 
         @Synchronized
         fun unsubscribe() {
+            Log.d("Wanzi123", "Subscription unsubscribe")
             active = false
 
             storeReference.get()?.removeSubscription(this)

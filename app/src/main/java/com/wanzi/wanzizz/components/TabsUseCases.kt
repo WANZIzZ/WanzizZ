@@ -1,5 +1,6 @@
 package com.wanzi.wanzizz.components
 
+import android.util.Log
 import com.wanzi.wanzizz.example.browser.BrowserStore
 import com.wanzi.wanzizz.example.browser.TabListAction
 
@@ -19,6 +20,7 @@ class TabsUseCases(
         private val store: BrowserStore
     ) {
         operator fun invoke(tab: String) {
+            Log.d("Wanzi123", "AddTabUseCase.invoke tab:$tab")
             store.dispatch(TabListAction.AddTabAction(tab))
         }
     }

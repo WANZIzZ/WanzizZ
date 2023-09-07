@@ -1,5 +1,6 @@
 package com.wanzi.wanzizz.state.internal
 
+import android.util.Log
 import com.wanzi.wanzizz.state.Action
 import com.wanzi.wanzizz.state.Middleware
 import com.wanzi.wanzizz.state.MiddlewareContext
@@ -15,7 +16,10 @@ internal class ReducerChainBuilder<S : State, A : Action>(
     private var chain: ((A) -> Unit)? = null
 
     fun get(store: Store<S, A>): (A) -> Unit {
-        chain?.let { return it }
+        Log.d("Wanzi123", "ReducerChainBuilder get chain:$chain store:$store")
+        chain?.let {
+            return it
+        }
 
         return build(store).also {
             chain = it
@@ -23,11 +27,13 @@ internal class ReducerChainBuilder<S : State, A : Action>(
     }
 
     private fun build(store: Store<S, A>): (A) -> Unit {
+        Log.d("Wanzi123", "ReducerChainBuilder build")
         val context = object : MiddlewareContext<S, A> {
             override val state: S
                 get() = store.state
 
             override fun dispatch(action: A) {
+                Log.d("Wanzi123", "ReducerChainBuilder build MiddlewareContext dispatch")
                 get(store).invoke(action)
             }
 
@@ -36,19 +42,22 @@ internal class ReducerChainBuilder<S : State, A : Action>(
         }
 
         var chain: (A) -> Unit = { action ->
+            Log.d("Wanzi123", "ReducerChainBuilder block1")
             val state = reducer(store.state, action)
             store.transitionTo(state)
         }
 
         val threadCheck: Middleware<S, A> = { _, next, action ->
+            Log.d("Wanzi123", "ReducerChainBuilder checkThread And next")
             storeThreadFactory.assertOnThread()
             next(action)
         }
 
-        (middleware.reversed() + threadCheck).forEach { middleware ->
-            val next = chain
-            chain = { action -> middleware(context, next, action) }
-        }
+//        (middleware.reversed() + threadCheck).forEach { middleware ->
+//            Log.d("Wanzi123", "ReducerChainBuilder forEach")
+//            val next = chain
+//            chain = { action -> middleware(context, next, action) }
+//        }
 
         return chain
     }

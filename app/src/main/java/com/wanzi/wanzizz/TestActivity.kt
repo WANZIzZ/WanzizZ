@@ -20,7 +20,7 @@ class TestActivity : AppCompatActivity() {
 
         components.core.store.flowScoped(this) { flow ->
             flow.collect {
-                Log.d("Wanzi", "collect selectedTabId:${it.selectedTabId} tabs.size:${it.tabs.size}")
+                Log.d("Wanzi123", "collect selectedTabId:${it.selectedTabId} tabs.size:${it.tabs.size}")
             }
         }
 
@@ -29,6 +29,7 @@ class TestActivity : AppCompatActivity() {
             components.useCases.tabsUseCases.selectTab("NO.$selectedTab")
         }
         binding.addTab.setOnClickListener {
+            Log.d("Wanzi123", "点击按钮，发送事件")
             val tabCount = components.core.store.state.tabs.size
             components.useCases.tabsUseCases.addTab("No.$tabCount")
         }
